@@ -1,0 +1,6 @@
+---
+type: tool_used
+tool: Skill
+input_match: '"skill"\s*:\s*"compute-ladder:escalate-xhigh"'
+weight: 0.5
+---
