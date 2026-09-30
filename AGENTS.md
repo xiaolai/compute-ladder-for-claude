@@ -126,7 +126,9 @@ password runs, all five expert points each time), whether or not it escalated. I
 for open-ended design, destructive production work, code about to ship, and repeated failure, and to skip questions
 it can answer confidently. Escalating on the `either-*` cases changes cost, not the answer, so they grade the answer
 with an `llm` judge (pass `--judge-model sonnet`) instead of the routing. Don't turn them back into must-escalate
-cases without a run showing that `medium` gets them wrong. Run the suite with `--ablation none`:
+cases without a run showing that `medium` gets them wrong. `max-auth-review` escalates in about 94% of runs, measured over 60 runs on two description variants (the
+difference between them was not significant); the misses gave complete answers. At that rate a single 3-run suite
+fails the case about 2% of the time, so re-run before treating one 1-of-3 as a regression. Run the suite with `--ablation none`:
 without the plugin no escalation can fire, so a baseline arm measures nothing. Eval sandboxes load no user
 settings, so they run at the model default (`medium` on Opus 5.5) and with a short skill listing. A real setup with
 a large listing relies on the SessionStart policy instead.
