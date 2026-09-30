@@ -30,6 +30,12 @@ is `xhigh` or higher, the plugin says so once per session.
 
 The flags in the report are token-size heuristics, not verdicts. Read the prompt before deciding a turn was misrouted.
 
+## How it was measured
+
+- [Worker model](docs/worker-model.md): the 10-task suite behind "Sonnet matched Opus at 54% of the cost".
+- [Routing evals](docs/evals.md): what the escalation suite grades, and how often Claude escalates on each kind of case.
+- [Platform behaviour](docs/platform-behaviour.md): the Claude Code behaviours the plugin relies on, each observed directly.
+
 ## Requirements
 
 Tested on Claude Code 2.1.285. Needs a model that supports effort levels (Opus 5.5, Sonnet 5.5, Fable 5.1 and their
