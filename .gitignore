@@ -3,3 +3,4 @@
 *~
 evals/results/
 evals-workers/results/
+.claude/nlpm-history.json
