@@ -11,15 +11,6 @@ description: |
   Many files, an explicit pattern, no judgment calls: the cheaper model does it as well as the main one.
   </commentary>
   </example>
-
-  <example>
-  Context: A test fails intermittently and the cause is unknown.
-  user: "The checkout test fails about one run in ten. Fix it."
-  assistant: "Finding the cause needs judgment, so I'll investigate this myself rather than delegating."
-  <commentary>
-  Debugging an unknown cause is not mechanical work; low-worker is the wrong tool.
-  </commentary>
-  </example>
 model: claude-sonnet-5-5
 effort: low
 tools: Read, Glob, Grep, Edit, Write, Bash
