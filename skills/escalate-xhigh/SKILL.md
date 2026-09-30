@@ -1,6 +1,6 @@
 ---
 name: escalate-xhigh
-description: Raises reasoning effort to xhigh for the rest of this turn. Invoke it FIRST, before reading files, when the request is genuinely hard - a design, architecture, data-model or API decision that is expensive to reverse; debugging with a non-obvious cause (concurrency, caching, shared state, timing); a multi-file refactor or migration with invariants to preserve; or a correctness review of a plan or diff. For security-sensitive work or a problem that has already failed once, use escalate-max.
+description: Raises effort to xhigh for this turn. Invoke it FIRST, before reading files, for genuinely hard work - a costly-to-reverse design, architecture, data-model or API decision; debugging a non-obvious cause (concurrency, caching, timing); a multi-file refactor or migration with invariants to preserve; a correctness review of a plan or diff. Security or a repeat failure goes to escalate-max.
 effort: xhigh
 ---
 

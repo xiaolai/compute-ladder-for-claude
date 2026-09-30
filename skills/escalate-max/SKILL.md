@@ -1,6 +1,6 @@
 ---
 name: escalate-max
-description: Raises reasoning effort to max for the rest of this turn. Invoke it FIRST, before any other work, when a mistake would be costly or the problem has already resisted an attempt - security-sensitive code (authentication, authorization, cryptography, secrets, payments); destructive or irreversible operations on production data; a production incident; the same problem failing a second time; or the user asking for maximum rigor. For work that is hard but recoverable, use escalate-xhigh.
+description: Raises effort to max for this turn. Invoke it FIRST when a mistake would be costly or a problem already resisted an attempt - security-sensitive code (authentication, authorization, cryptography, secrets, payments); destructive operations on production data; a production incident; a second failure; a request for maximum rigor. Recoverable hard work goes to escalate-xhigh.
 effort: max
 ---
 
