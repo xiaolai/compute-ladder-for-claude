@@ -17,18 +17,36 @@ cheap:
 claude plugin install compute-ladder@xiaolai --scope user
 ```
 
-Then set a modest baseline, so there is something to escalate from. On Opus 5.5 the default is already `medium`.
-Run `/effort auto`, or remove the model's entry from `modelSettings` in `~/.claude/settings.json`. If the baseline
-is `xhigh` or higher, the plugin says so once per session.
+That's all the setup. The plugin escalates from your normal effort level, and Opus 5.5 already defaults to
+`medium`. If you once saved a higher level with `/effort`, run `/effort medium` once; the plugin reminds you when
+your level is `xhigh` or above.
 
-## Check how it routes
+## Use
+
+**Day to day, do nothing.** Claude escalates hard turns by itself, and each turn starts again from your normal level.
+You can tell a turn was escalated by this line in the transcript:
+
+```
+Skill(compute-ladder:escalate-xhigh)
+```
+
+**To boost one turn yourself,** start your message with the skill:
+
+```
+/compute-ladder:escalate-max  review this auth change before we ship it
+```
+
+It applies to that turn only, so there's nothing to switch back, unlike `/effort max`. Use `escalate-xhigh` for
+hard design or debugging work, and `escalate-max` for security, production data, or a problem that already failed.
+
+**To see how it's been routing:**
 
 ```
 /compute-ladder:report
 /compute-ladder:report --days 7
 ```
 
-The flags in the report are token-size heuristics, not verdicts. Read the prompt before deciding a turn was misrouted.
+The report's flags are token-size heuristics, not verdicts. Read the prompt before deciding a turn was misrouted.
 
 ## How it was measured
 
