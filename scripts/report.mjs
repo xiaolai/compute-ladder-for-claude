@@ -48,8 +48,10 @@ function renderDelegation(rows) {
     out.push('No subagent runs logged.');
     return out;
   }
-  out.push('| Agent | Runs | Models | Mean output tokens |', '|---|---:|---|---:|');
-  for (const r of rows) out.push(`| ${r.agentType} | ${r.runs} | ${r.models.join(', ') || 'unknown'} | ${r.meanOutput.toLocaleString('en-US')} |`);
+  out.push('| Agent | Runs | Models | Effort | Mean output tokens |', '|---|---:|---|---|---:|');
+  for (const r of rows) {
+    out.push(`| ${r.agentType} | ${r.runs} | ${r.models.join(', ') || 'unknown'} | ${r.efforts.join(', ') || 'none'} | ${r.meanOutput.toLocaleString('en-US')} |`);
+  }
   const missing = rows.reduce((n, r) => n + r.missing, 0);
   if (missing > 0) out.push('', `${missing} subagent run(s) without a readable transcript are counted but not measured.`);
   return out;

@@ -159,14 +159,14 @@ test('subagentRecord logs real agents and skips Claude Code internal ones', () =
   assert.equal(subagentRecord({ session_id: 's', agent_type: '' }, 'T'), null);
 });
 
-test('usageFromTranscript counts messages once and lists real models only', () => {
+test('usageFromTranscript counts messages once and lists real models and effort levels only', () => {
   const u = usageFromTranscript([
-    { type: 'assistant', message: { id: 'm1', model: 'claude-sonnet-5-5', usage: { output_tokens: 5 } } },
-    { type: 'assistant', message: { id: 'm1', model: 'claude-sonnet-5-5', usage: { output_tokens: 9 } } },
-    { type: 'assistant', message: { id: 'm2', model: '<synthetic>', usage: { output_tokens: 1 } } },
-    { type: 'user', message: { content: 'x' } },
+    { type: 'assistant', effort: 'medium', message: { id: 'm1', model: 'claude-sonnet-5-5', usage: { output_tokens: 5 } } },
+    { type: 'assistant', effort: 'low', message: { id: 'm1', model: 'claude-sonnet-5-5', usage: { output_tokens: 9 } } },
+    { type: 'assistant', effort: 'bogus', message: { id: 'm2', model: '<synthetic>', usage: { output_tokens: 1 } } },
+    { type: 'user', effort: 'max', message: { content: 'x' } },
   ]);
-  assert.deepEqual(u, { outputTokens: 10, models: ['claude-sonnet-5-5'] });
+  assert.deepEqual(u, { outputTokens: 10, models: ['claude-sonnet-5-5'], efforts: ['low', 'medium'] });
 });
 
 test('summarizeDelegation groups by agent, measures what it can and counts the rest', () => {
@@ -176,11 +176,15 @@ test('summarizeDelegation groups by agent, measures what it can and counts the r
       { agent_type: 'compute-ladder:low-worker', agent_transcript_path: '/w2' },
       { agent_type: 'Explore', agent_transcript_path: '/gone' },
     ],
-    (p) => ({ '/w1': { outputTokens: 100, models: ['claude-sonnet-5-5'] }, '/w2': { outputTokens: 300, models: ['claude-sonnet-5-5'] } })[p] ?? null,
+    (p) =>
+      ({
+        '/w1': { outputTokens: 100, models: ['claude-sonnet-5-5'], efforts: ['low'] },
+        '/w2': { outputTokens: 300, models: ['claude-sonnet-5-5'], efforts: ['xhigh', 'low'] },
+      })[p] ?? null,
   );
   assert.deepEqual(rows, [
-    { agentType: 'compute-ladder:low-worker', runs: 2, missing: 0, models: ['claude-sonnet-5-5'], meanOutput: 200 },
-    { agentType: 'Explore', runs: 1, missing: 1, models: [], meanOutput: 0 },
+    { agentType: 'compute-ladder:low-worker', runs: 2, missing: 0, models: ['claude-sonnet-5-5'], efforts: ['low', 'xhigh'], meanOutput: 200 },
+    { agentType: 'Explore', runs: 1, missing: 1, models: [], efforts: [], meanOutput: 0 },
   ]);
 });
 

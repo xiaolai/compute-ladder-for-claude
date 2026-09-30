@@ -9,7 +9,7 @@ cheap:
 - **Effort escalation, inside the conversation.** Two skills set effort for the rest of the turn. `escalate-xhigh` handles hard but recoverable work: design decisions, non-obvious bugs, and risky refactors. `escalate-max` handles costly mistakes: security-sensitive code, production data, and a problem that has already failed once. Claude invokes one as the first step of a turn, and the level resets when you send your next message. Switching effort keeps the prompt cache.
 - **A cheaper model, at the subagent boundary.** Claude can't switch the main conversation's model on its own, and switching would rebuild the whole context in a new cache. So large mechanical jobs (bulk edits, renames, repository-wide searches) go to the `low-worker` subagent. It runs on Sonnet 5.5 at `low` effort, which matched Opus on a 10-task mechanical suite (30/30 runs each) at 54% of the cost. Haiku was cheaper still but got 1 run in 10 wrong.
 - **A guard.** A skill's `effort:` can also *lower* the level, and `CLAUDE_CODE_EFFORT_LEVEL` silently blocks the override. The guard denies both cases, so Claude never escalates into a downgrade or believes it escalated when it didn't.
-- **A report.** `/compute-ladder:report` shows the escalation rate, output tokens per tier, escalations that didn't take effect, turns that look under- or over-escalated, and which models your subagents actually ran on.
+- **A report.** `/compute-ladder:report` shows the escalation rate, output tokens per tier, escalations that didn't take effect, turns that look under- or over-escalated, and which models and effort levels your subagents actually ran on.
 
 ## Install
 

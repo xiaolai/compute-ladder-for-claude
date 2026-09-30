@@ -227,12 +227,22 @@ export function subagentRecord(input, now) {
   };
 }
 
-/** Output tokens (each message counted once, at its largest usage) and the models that answered. */
+/** Effort levels in ladder order, not alphabetical. */
+function byRank(levels) {
+  return [...levels].sort((a, b) => rank(a) - rank(b));
+}
+
+/**
+ * Output tokens (each message counted once, at its largest usage), the models that answered and the effort levels
+ * they answered at. A model without effort levels (Haiku) leaves `efforts` empty.
+ */
 export function usageFromTranscript(entries) {
   const perMessage = new Map();
   const models = new Set();
+  const efforts = new Set();
   for (const entry of entries) {
     if (entry?.type !== 'assistant') continue;
+    if (rank(entry.effort) !== null) efforts.add(entry.effort);
     const { id, model, usage } = entry.message ?? {};
     if (typeof model === 'string' && model !== '<synthetic>') models.add(model);
     if (typeof id !== 'string' || typeof usage?.output_tokens !== 'number') continue;
@@ -240,19 +250,19 @@ export function usageFromTranscript(entries) {
   }
   let outputTokens = 0;
   for (const tokens of perMessage.values()) outputTokens += tokens;
-  return { outputTokens, models: [...models].sort() };
+  return { outputTokens, models: [...models].sort(), efforts: byRank(efforts) };
 }
 
 /**
  * Group subagent runs by agent type.
  *
  * @param {object[]} records subagent records
- * @param {(path: string) => {outputTokens: number, models: string[]} | null} loadUsage
+ * @param {(path: string) => {outputTokens: number, models: string[], efforts: string[]} | null} loadUsage
  */
 export function summarizeDelegation(records, loadUsage) {
   const groups = new Map();
   for (const r of records) {
-    if (!groups.has(r.agent_type)) groups.set(r.agent_type, { agentType: r.agent_type, runs: 0, missing: 0, tokens: [], models: new Set() });
+    if (!groups.has(r.agent_type)) groups.set(r.agent_type, { agentType: r.agent_type, runs: 0, missing: 0, tokens: [], models: new Set(), efforts: new Set() });
     const g = groups.get(r.agent_type);
     g.runs += 1;
     const usage = r.agent_transcript_path ? loadUsage(r.agent_transcript_path) : null;
@@ -262,6 +272,7 @@ export function summarizeDelegation(records, loadUsage) {
     }
     g.tokens.push(usage.outputTokens);
     for (const m of usage.models) g.models.add(m);
+    for (const e of usage.efforts) g.efforts.add(e);
   }
   return [...groups.values()]
     .map((g) => ({
@@ -269,6 +280,7 @@ export function summarizeDelegation(records, loadUsage) {
       runs: g.runs,
       missing: g.missing,
       models: [...g.models].sort(),
+      efforts: byRank(g.efforts),
       meanOutput: g.tokens.length ? Math.round(g.tokens.reduce((a, b) => a + b, 0) / g.tokens.length) : 0,
     }))
     .sort((a, b) => b.runs - a.runs || a.agentType.localeCompare(b.agentType));

@@ -22,7 +22,7 @@ upgrade before trusting the guard's assumptions.
 | A plugin agent's `model: sonnet` frontmatter is honored when Claude delegates to it | `low-worker` runs on Sonnet |
 | A subagent writes its own cache from scratch (~31k tokens for a Haiku subagent) | Delegation has a fixed cost; the policy says to do small edits inline |
 | A full model ID (`claude-sonnet-5-5`) works in a plugin agent's `model:` | `low-worker` is pinned to the model that was measured |
-| SubagentStop carries `agent_type` and `agent_transcript_path`; subagent transcript entries carry `message.model` | The report shows which model each agent type really ran on |
+| SubagentStop carries `agent_type` and `agent_transcript_path`; subagent transcript assistant entries carry `message.model` and a top-level `effort` (absent on Haiku, which has no effort levels) | The report shows which model and effort level each agent type really ran on |
 | `plugins: []` in an eval case does **not** unload the plugin under test (its Stop hook still wrote a log in the sandbox) | Measure without the plugin through the `--ablation with-without` "without" arm |
 | A user-typed `/compute-ladder:escalate-max` applies its `effort:` to that turn (ran at `max`), but makes no Skill tool call, so `PreToolUse(Skill)` never fires | `prompt-submit.mjs` records typed escalations; without it the Stop hook took a manual boost for a `max` baseline and warned falsely |
 | `UserPromptSubmit` input carries the raw `prompt`, slash command included, plus `prompt_id` | Typed escalations are matched from the prompt text and keyed by `prompt_id` like any other |

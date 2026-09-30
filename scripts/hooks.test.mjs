@@ -87,7 +87,7 @@ test('report runs against a real log and transcript', () => {
 test('subagent-stop logs real agents, skips internal ones, and the report shows delegation', () => {
   const data = mkdtempSync(join(tmpdir(), 'el-'));
   const agentTranscript = join(data, 'agent.jsonl');
-  writeFileSync(agentTranscript, `${JSON.stringify({ type: 'assistant', message: { id: 'm1', model: 'claude-sonnet-5-5', usage: { output_tokens: 77 } } })}\n`);
+  writeFileSync(agentTranscript, `${JSON.stringify({ type: 'assistant', effort: 'low', message: { id: 'm1', model: 'claude-sonnet-5-5', usage: { output_tokens: 77 } } })}\n`);
   assert.equal(run('subagent-stop.mjs', { session_id: 's1', prompt_id: 'p1', agent_type: 'compute-ladder:low-worker', agent_transcript_path: agentTranscript }, { CLAUDE_PLUGIN_DATA: data }), null);
   assert.equal(run('subagent-stop.mjs', { session_id: 's1', agent_type: '' }, { CLAUDE_PLUGIN_DATA: data }), null);
   const lines = readFileSync(join(data, 'subagents.jsonl'), 'utf8').trim().split('\n');
@@ -95,7 +95,7 @@ test('subagent-stop logs real agents, skips internal ones, and the report shows 
   run('stop.mjs', { session_id: 's1', prompt_id: 'p1', transcript_path: '/none', effort: { level: 'medium' } }, { CLAUDE_PLUGIN_DATA: data });
   const res = spawnSync('node', [join(here, 'report.mjs'), data], { encoding: 'utf8' });
   assert.equal(res.status, 0, res.stderr);
-  assert.match(res.stdout, /\| compute-ladder:low-worker \| 1 \| claude-sonnet-5-5 \| 77 \|/);
+  assert.match(res.stdout, /\| compute-ladder:low-worker \| 1 \| claude-sonnet-5-5 \| low \| 77 \|/);
 });
 
 test('a typed escalation is recorded, so Stop neither warns about the baseline nor mislabels the turn', () => {
