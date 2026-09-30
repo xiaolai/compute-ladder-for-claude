@@ -12,6 +12,7 @@ Routes Claude Code's compute along two axes, each at the boundary where switchin
 
 ```
 SessionStart  → cat hooks/policy.md                      (policy into context; survives skill-listing truncation)
+UserPromptSubmit → scripts/prompt-submit.mjs             (record an escalation the user typed as /compute-ladder:escalate-*)
 Claude        → Skill compute-ladder:escalate-xhigh|max  (effort: frontmatter raises the level for this turn)
 PreToolUse    → scripts/guard.mjs                        (deny downgrades and pinned sessions; record the request)
 Stop          → scripts/stop.mjs                         (log the turn; warn if the escalation didn't take effect)
@@ -33,7 +34,7 @@ The evidence behind the design lives in `docs/`:
 ```
 .claude-plugin/plugin.json          — identity and metadata
 .claude-plugin/marketplace.json     — per-plugin marketplace listing (workspace convention)
-hooks/hooks.json                    — SessionStart, PreToolUse(Skill), Stop, SubagentStop
+hooks/hooks.json                    — SessionStart, UserPromptSubmit, PreToolUse(Skill), Stop, SubagentStop
 hooks/policy.md                     — the policy text SessionStart injects; keep it in step with skill and agent descriptions
 skills/escalate-xhigh/SKILL.md      — effort: xhigh
 skills/escalate-max/SKILL.md        — effort: max
@@ -43,6 +44,7 @@ scripts/lib.mjs                     — all logic, pure functions
 scripts/io.mjs                      — stdin, data dir, session state, output
 scripts/guard.mjs, stop.mjs         — hook entry points
 scripts/subagent-stop.mjs           — SubagentStop entry point
+scripts/prompt-submit.mjs           — UserPromptSubmit entry point; must print nothing, its stdout enters Claude's context
 scripts/report.mjs                  — report CLI
 scripts/check-worker-graders.mjs    — proves the worker suite's graders tell right from wrong
 scripts/*.test.mjs                  — unit tests (lib) and end-to-end hook tests (real processes)
@@ -72,7 +74,8 @@ CLAUDE_CODE_EFFORT_LEVEL=low claude plugin eval . --eval-dir evals-workers --run
 
 ## Rules
 
-- Never read effort from `SessionStart` or `UserPromptSubmit` hook input; it is stale there. `PreToolUse` and `Stop`
+- Never read effort from `SessionStart` or `UserPromptSubmit` hook input; it is stale there. `prompt-submit.mjs` reads
+  only the prompt text. `PreToolUse` and `Stop`
   are accurate.
 - Keep the guard's downgrade and `CLAUDE_CODE_EFFORT_LEVEL` denials: a skill's `effort:` can lower the level, and
   the env var silently blocks the override.

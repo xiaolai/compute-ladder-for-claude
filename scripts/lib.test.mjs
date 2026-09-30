@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { escalationTarget, guardDecision, median, rank, stopOutcome, subagentRecord, summarize, summarizeDelegation, turnsFromTranscript, usageFromTranscript } from './lib.mjs';
+import { escalationTarget, guardDecision, median, rank, stopOutcome, subagentRecord, summarize, typedEscalation, summarizeDelegation, turnsFromTranscript, usageFromTranscript } from './lib.mjs';
 
 test('rank orders levels and rejects anything else', () => {
   assert.equal(rank('low'), 0);
@@ -182,4 +182,18 @@ test('summarizeDelegation groups by agent, measures what it can and counts the r
     { agentType: 'compute-ladder:low-worker', runs: 2, missing: 0, models: ['claude-sonnet-5-5'], meanOutput: 200 },
     { agentType: 'Explore', runs: 1, missing: 1, models: [], meanOutput: 0 },
   ]);
+});
+
+test('typedEscalation recognises a typed escalation skill, namespaced or bare', () => {
+  assert.equal(typedEscalation('/compute-ladder:escalate-max review this'), 'max');
+  assert.equal(typedEscalation('  /compute-ladder:escalate-xhigh'), 'xhigh');
+  assert.equal(typedEscalation('/escalate-max fix it'), 'max');
+});
+
+test('typedEscalation ignores mentions, other plugins and near-misses', () => {
+  assert.equal(typedEscalation('please use /compute-ladder:escalate-max'), null);
+  assert.equal(typedEscalation('/other:escalate-max'), null);
+  assert.equal(typedEscalation('/compute-ladder:escalate-maximum'), null);
+  assert.equal(typedEscalation('/compute-ladder:report'), null);
+  assert.equal(typedEscalation(undefined), null);
 });

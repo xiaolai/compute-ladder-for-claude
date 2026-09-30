@@ -97,3 +97,20 @@ test('subagent-stop logs real agents, skips internal ones, and the report shows 
   assert.equal(res.status, 0, res.stderr);
   assert.match(res.stdout, /\| compute-ladder:low-worker \| 1 \| claude-sonnet-5-5 \| 77 \|/);
 });
+
+test('a typed escalation is recorded, so Stop neither warns about the baseline nor mislabels the turn', () => {
+  const data = mkdtempSync(join(tmpdir(), 'el-'));
+  const out = run('prompt-submit.mjs', { session_id: 's1', prompt_id: 'p1', prompt: '/compute-ladder:escalate-max review this', hook_event_name: 'UserPromptSubmit' }, { CLAUDE_PLUGIN_DATA: data });
+  assert.equal(out, null, 'UserPromptSubmit must print nothing: its stdout would enter Claude\'s context');
+  const stop = run('stop.mjs', { session_id: 's1', prompt_id: 'p1', effort: { level: 'max' } }, { CLAUDE_PLUGIN_DATA: data });
+  assert.equal(stop, null, 'no false "baseline is max" warning');
+  const [record] = readFileSync(join(data, 'turns.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+  assert.equal(record.requested, 'max');
+  assert.equal(record.took_effect, true);
+});
+
+test('an ordinary prompt leaves no state behind', () => {
+  const data = mkdtempSync(join(tmpdir(), 'el-'));
+  assert.equal(run('prompt-submit.mjs', { session_id: 's1', prompt_id: 'p1', prompt: 'fix the typo' }, { CLAUDE_PLUGIN_DATA: data }), null);
+  assert.equal(existsSync(join(data, 'sessions', 's1.json')), false);
+});

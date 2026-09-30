@@ -273,3 +273,16 @@ export function summarizeDelegation(records, loadUsage) {
     }))
     .sort((a, b) => b.runs - a.runs || a.agentType.localeCompare(b.agentType));
 }
+
+/**
+ * The effort level a prompt requests by typing an escalation skill, or null.
+ *
+ * A typed `/compute-ladder:escalate-max` runs the skill without a Skill tool call, so the PreToolUse guard never
+ * sees it; the UserPromptSubmit hook records it instead. The bare `/escalate-max` form is accepted too, since
+ * Claude Code resolves an unambiguous skill name without its plugin prefix.
+ */
+export function typedEscalation(prompt) {
+  if (typeof prompt !== 'string') return null;
+  const match = prompt.match(new RegExp(`^\\s*/(?:${PLUGIN}:)?escalate-(xhigh|max)(?=\\s|$)`));
+  return match ? match[1] : null;
+}
