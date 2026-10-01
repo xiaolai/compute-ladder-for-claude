@@ -4,7 +4,7 @@
 
 Routes Claude Code's compute along two axes, each at the boundary where switching is cheap:
 
-- **Effort, inside a conversation.** A skill's `effort:` frontmatter overrides the session level for the rest of the
+- **Effort, inside a conversation.** A skill's `effort:` frontmatter requests an override of the session level for the rest of the
   turn and keeps the prompt cache. The plugin packages that as an **escalate-only** ladder: the session runs at a
   modest baseline, and Claude invokes an escalation skill when a turn is genuinely hard.
 - **Model, at subagent boundaries.** Claude can't switch the main thread's model itself, and a switch would rebuild
@@ -89,6 +89,8 @@ CLAUDE_CODE_EFFORT_LEVEL=low claude plugin eval . --eval-dir evals-workers --run
 - Keep `hooks/policy.md` in step with the skill and agent descriptions.
 
 ## Known limits
+
+- The latest Claude Code 2.1.286 probes did not reproduce skill-triggered effort overrides. Treat invocation as a request and confirm observed effort in the report; see `docs/platform-behaviour.md`.
 
 - The model decides whether to escalate. At `medium`, Opus 5.5 sometimes solves a hard-looking problem correctly
   without escalating, so a missed escalation is not always a wrong answer. Judge routing with the report and the

@@ -26,3 +26,12 @@ upgrade before trusting the guard's assumptions.
 | `plugins: []` in an eval case does **not** unload the plugin under test (its Stop hook still wrote a log in the sandbox) | Measure without the plugin through the `--ablation with-without` "without" arm |
 | A user-typed `/compute-ladder:escalate-max` applies its `effort:` to that turn (ran at `max`), but makes no Skill tool call, so `PreToolUse(Skill)` never fires | `prompt-submit.mjs` records typed escalations; without it the Stop hook took a manual boost for a `max` baseline and warned falsely |
 | `UserPromptSubmit` input carries the raw `prompt`, slash command included, plus `prompt_id` | Typed escalations are matched from the prompt text and keyed by `prompt_id` like any other |
+
+## Recheck on 2.1.286 — 2026-10-01
+
+A minimal plugin skill with `effort: xhigh` loaded through the Skill tool but did not raise
+the observed level on this installation: a CLI high baseline stayed high and a settings medium
+baseline stayed medium. With `CLAUDE_CODE_EFFORT_LEVEL=auto`, Stop reported high. Because the
+unset-variable control also failed, these probes do not isolate auto's effect. Treat the older
+override observations above as host/account/version-dependent; retain failed-escalation reporting
+and never infer success from the skill's prose. The environment guard remains conservative.

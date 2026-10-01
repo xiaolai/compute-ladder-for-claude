@@ -6,10 +6,12 @@ cheaper model for large mechanical jobs, instead of you switching `/effort` and 
 Claude Code has no automatic routing for either. compute-ladder routes each one at the boundary where switching is
 cheap:
 
-- **Effort escalation, inside the conversation.** Two skills set effort for the rest of the turn. `escalate-xhigh` handles hard but recoverable work: design decisions, non-obvious bugs, and risky refactors. `escalate-max` handles costly mistakes: security-sensitive code, production data, and a problem that has already failed once. Claude invokes one as the first step of a turn, and the level resets when you send your next message. Switching effort keeps the prompt cache.
+- **Effort escalation, inside the conversation.** Two skills request effort for the rest of the turn. `escalate-xhigh` handles hard but recoverable work: design decisions, non-obvious bugs, and risky refactors. `escalate-max` handles costly mistakes: security-sensitive code, production data, and a problem that has already failed once. Claude invokes one as the first step of a turn, and the level resets when you send your next message. Switching effort keeps the prompt cache.
 - **A cheaper model, at the subagent boundary.** Claude can't switch the main conversation's model on its own, and switching would rebuild the whole context in a new cache. So large mechanical jobs (bulk edits, renames, repository-wide searches) go to the `low-worker` subagent. It runs on Sonnet 5.5 at `low` effort, which matched Opus on a 10-task mechanical suite (30/30 runs each) at 54% of the cost. Haiku was cheaper still but got 1 run in 10 wrong.
-- **A guard.** A skill's `effort:` can also *lower* the level, and `CLAUDE_CODE_EFFORT_LEVEL` silently blocks the override. The guard denies both cases, so Claude never escalates into a downgrade or believes it escalated when it didn't.
+- **A guard.** A skill's `effort:` can also *lower* the level, and `CLAUDE_CODE_EFFORT_LEVEL` silently blocks the override. The guard denies both cases, and the Stop hook reports requests that did not take effect.
 - **A report.** `/compute-ladder:report` shows the escalation rate, output tokens per tier, escalations that didn't take effect, turns that look under- or over-escalated, and which models and effort levels your subagents actually ran on.
+
+On Claude Code 2.1.286, our latest isolated probes did not reproduce a skill-triggered effort override. Check the report's observed effort before relying on escalation; see [platform evidence](docs/platform-behaviour.md).
 
 ## Install
 
@@ -23,8 +25,8 @@ your level is `xhigh` or above.
 
 ## Use
 
-**Day to day, do nothing.** Claude escalates hard turns by itself, and each turn starts again from your normal level.
-You can tell a turn was escalated by this line in the transcript:
+**Day to day, do nothing.** Claude can request escalation on hard turns. Each turn starts again from your normal level.
+This transcript line shows a request, not proof that the runtime applied it:
 
 ```
 Skill(compute-ladder:escalate-xhigh)

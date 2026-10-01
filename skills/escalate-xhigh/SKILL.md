@@ -4,7 +4,7 @@ description: Raises effort to xhigh for this turn. Invoke it FIRST, before readi
 effort: xhigh
 ---
 
-Effort is now xhigh for the rest of this turn. Continue with the user's request; there is no need to mention the switch.
+This skill requests xhigh effort for subsequent calls in this turn. Continue with the user's request. Do not claim that effort actually increased solely because the skill loaded; the routing report must confirm the observed level. If the host ignores the override, continue at the actual level and preserve the failed-escalation report.
 
 Scope: this skill only raises effort for the current turn. For security-sensitive work or a repeated failure, use `compute-ladder:escalate-max`; to see how escalation has been going, use `compute-ladder:report`.
 
